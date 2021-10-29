@@ -3,6 +3,7 @@
 #### Warning
 
 You need to set the path to Robot Mono font in the source code.
+(Settings are in the main function)
 
 #### Usage
 
@@ -18,6 +19,6 @@ or
 ./launch.sh
 ```
 
-Output:
+#### Output:
 
 ![Wallpaper](./assets/wallpaper.png)
