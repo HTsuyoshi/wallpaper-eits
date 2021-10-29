@@ -1,0 +1,67 @@
+#!/usr/bin/python
+
+import argparse
+
+# Define args
+
+parser = argparse.ArgumentParser(
+        description='A simple script to create an eits wallpaper'
+        )
+parser.add_argument(
+        '-w',
+        '--width',
+        help='Wallpaper width',
+        type=int
+        )
+parser.add_argument(
+        '--height',
+        help='Wallpaper height',
+        type=int
+        )
+parser.add_argument(
+        '-u',
+        '--username',
+        help='Wallpaper username',
+        type=str
+        )
+
+from PIL import Image, ImageDraw, ImageFont
+
+
+def shadows(draw_shadows):
+    pass
+
+if __name__ == '__main__':
+
+    global bg, fg
+    global f_size, f_axis, f_title_size, font
+
+    args = parser.parse_args()
+
+    width, height = args.width, args.height
+    user = args.username
+
+    # Properties
+    char_size = 8 # char to pixel
+
+    # Colors
+    bg = '#222831'
+    fg = '#e4e4e4'
+    extra = '#D65A31'
+
+    # Font config
+    f_size = int(width*0.05)
+    f_axis = (width*0.5 - (len(user)*char_size*0.5), height*0.8)
+    font = ImageFont.truetype('/usr/share/fonts/TTF/RobotoMono-Regular.ttf', f_size)
+
+    wallpaper = Image.new(mode = "RGB", 
+            size = (width, height), 
+            color = bg)
+
+    Image.open('./assets/catbomb.png')
+
+    draw_username = ImageDraw.Draw(wallpaper)
+    draw_username.text(f_axis, user, fill = fg, font=font)
+
+    wallpaper.show()
+    wallpaper.save('./assets/wallpaper.png')
