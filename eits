@@ -2,22 +2,23 @@
 
 import argparse
 
-# Define args
-
 parser = argparse.ArgumentParser(
         description='A simple script to create an eits wallpaper'
         )
+
 parser.add_argument(
         '-w',
         '--width',
         help='Wallpaper width',
         type=int
         )
+
 parser.add_argument(
         '--height',
         help='Wallpaper height',
         type=int
         )
+
 parser.add_argument(
         '-u',
         '--username',
@@ -27,41 +28,143 @@ parser.add_argument(
 
 from PIL import Image, ImageDraw, ImageFont
 
+def write_shadow(img: Image.Image) -> Image.Image:
+    size = img.size
+    shadow = False
 
-def shadows(draw_shadows):
-    pass
+    ### Loop through the diagonal ###
+
+    start_x = 0
+    for start_x in range(size[0]):
+        y = 0
+        for x in range(start_x, size[0]):
+            if y > size[1]-1:
+                continue
+            axis = (x, y)
+            if not img.getpixel(axis) == (34, 40, 49, 255):
+                shadow = True
+            if shadow and img.getpixel(axis) == (34, 40, 49, 255):
+                img.putpixel(axis, (0, 0, 0, 255))
+            y += 1
+        shadow = False
+
+    start_y = 0
+
+    for start_y in range(size[1]):
+        x = 0
+        for y in range(start_y, size[1]):
+            if x > size[0]-1:
+                continue
+            axis = (x, y)
+            if not img.getpixel(axis) == (34, 40, 49, 255):
+                shadow = True
+            if shadow and img.getpixel(axis) == (34, 40, 49, 255):
+                img.putpixel(axis, (0, 0, 0, 255))
+            x += 1
+        shadow = False
+
+    ### Loop through the diagonal ###
+
+    return img
+
+def write_text(text: str, font_size: float,
+        color: str, img,
+        top_gap: float, left_gap: float) -> None:
+
+    size = int(width*font_size)
+    font = ImageFont.truetype(font_path, size)
+    axis = font.getsize(text)
+
+    x = int(width*left_gap - (axis[0]//2))
+    y = int(height*top_gap - (axis[1])//2)
+
+    axis = (x, y)
+    img.text(axis, text, fill = color, font=font)
+
+def write_image(wallpaper: Image.Image, img: Image.Image,
+        left_gap: float, top_gap:float) -> None:
+    axis = img.size
+    axis = (int(width*left_gap - (axis[0]//2)), int(height*top_gap - (axis[1])//2))
+    wallpaper.alpha_composite(img, axis)
+
+def resize_image(ratio: float, img: Image.Image) -> Image.Image:
+    size = int(img.size[0] * ratio), int(img.size[1] * ratio)
+    img = img.resize(size)
+    return img
+
+def draw_border(gap: float, border: float,
+        wallpaper, color: str,
+        shadow_gap: float = 0) -> None:
+    gap = int(max(width * gap, height * gap))
+    shadow_gap = int(max(width * shadow_gap, height * shadow_gap))
+    axis = (gap, gap, width - gap, height - gap)
+    axis = (axis[0] + shadow_gap, axis[1] + shadow_gap,
+            axis[2] + shadow_gap, axis[3] + shadow_gap)
+    wallpaper.rectangle(axis, outline=color, width=int(width*border))
+
 
 if __name__ == '__main__':
 
-    global bg, fg
-    global f_size, f_axis, f_title_size, font
+    ### Settings ###
 
+    global font_path
+    font_path = '/usr/share/fonts/TTF/RobotoMono-Regular.ttf'
+
+    # Colors
+    bg = '#222831' # (34, 40, 49, 255)
+    fg = '#e4e4e4' # (228, 228, 228, 255)
+    extra = '#D65A31' # (214, 90, 49, 255)
+    black = '#000000'
+
+    # Each intheshell_
+    left_gap_title = 0.5
+    top_gap_title = 0.1
+    title_gap = 0.05
+    title_1 = '[E]ach'
+    title_2 = 'InTheShell_'
+
+    # Logo
+    left_gap_logo = 0.5
+    top_gap_logo = 0.5
+
+    # Username
+    left_gap_user = 0.5
+    top_gap_user = 0.85
+
+    # Border
+    border_gap = 0.02
+    border_width = 0.01
+
+    shadow_gap = 0.01
+
+    ### Settings ###
+
+    global width, height
     args = parser.parse_args()
-
     width, height = args.width, args.height
     user = args.username
 
-    # Properties
-    char_size = 8 # char to pixel
-
-    # Colors
-    bg = '#222831'
-    fg = '#e4e4e4'
-    extra = '#D65A31'
-
-    # Font config
-    f_size = int(width*0.05)
-    f_axis = (width*0.5 - (len(user)*char_size*0.5), height*0.8)
-    font = ImageFont.truetype('/usr/share/fonts/TTF/RobotoMono-Regular.ttf', f_size)
-
-    wallpaper = Image.new(mode = "RGB", 
+    wallpaper = Image.new(mode = "RGBA",
             size = (width, height), 
             color = bg)
 
-    Image.open('./assets/catbomb.png')
+    img = ImageDraw.Draw(wallpaper)
+    write_text(text=title_1, font_size=0.1, color=fg,
+            img=img, top_gap=top_gap_title, left_gap=left_gap_title)
+    write_text(text=title_2, font_size=0.1, color=fg,
+            img=img, top_gap=top_gap_title + title_gap, left_gap=left_gap_title)
 
-    draw_username = ImageDraw.Draw(wallpaper)
-    draw_username.text(f_axis, user, fill = fg, font=font)
+    write_text(text=user, font_size=0.05, color=fg,
+            img=img, top_gap=top_gap_user, left_gap=left_gap_user)
 
-    wallpaper.show()
+
+    catbomb = Image.open('./assets/catbomb.png')
+    catbomb = resize_image(ratio=0.35, img=catbomb)
+
+    write_image(wallpaper=wallpaper, img=catbomb, left_gap=left_gap_logo, top_gap=top_gap_logo)
+    wallpaper = write_shadow(wallpaper)
+
+    draw_border(gap=border_gap, border=border_width, wallpaper=img, color=black, shadow_gap=shadow_gap)
+    draw_border(gap=border_gap, border=border_width, wallpaper=img, color=fg)
+
     wallpaper.save('./assets/wallpaper.png')
