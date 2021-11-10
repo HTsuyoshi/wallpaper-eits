@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./eits --height=2400 -w=1080 -u='SOME RANDOM USERNAME'
+./eits 1000 2400 'SOME RANDOM USERNAME'
