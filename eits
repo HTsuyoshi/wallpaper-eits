@@ -7,21 +7,19 @@ parser = argparse.ArgumentParser(
         )
 
 parser.add_argument(
-        '-w',
-        '--width',
+        'width',
         help='Wallpaper width',
         type=int
         )
 
 parser.add_argument(
-        '--height',
+        'height',
         help='Wallpaper height',
         type=int
         )
 
 parser.add_argument(
-        '-u',
-        '--username',
+        'username',
         help='Wallpaper username',
         type=str
         )
@@ -159,6 +157,7 @@ if __name__ == '__main__':
 
 
     catbomb = Image.open('./assets/catbomb.png')
+
     catbomb = resize_image(ratio=0.35, img=catbomb)
 
     write_image(wallpaper=wallpaper, img=catbomb, left_gap=left_gap_logo, top_gap=top_gap_logo)
