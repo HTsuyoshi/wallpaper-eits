@@ -31,7 +31,6 @@ def write_shadow(img: Image.Image) -> Image.Image:
     shadow = False
 
     ### Loop through the diagonal ###
-
     start_x = 0
     for start_x in range(size[0]):
         y = 0
@@ -47,7 +46,6 @@ def write_shadow(img: Image.Image) -> Image.Image:
         shadow = False
 
     start_y = 0
-
     for start_y in range(size[1]):
         x = 0
         for y in range(start_y, size[1]):
@@ -60,24 +58,22 @@ def write_shadow(img: Image.Image) -> Image.Image:
                 img.putpixel(axis, (0, 0, 0, 255))
             x += 1
         shadow = False
-
     ### Loop through the diagonal ###
 
     return img
 
 def write_text(text: str, font_size: float,
-        color: str, img,
-        top_gap: float, left_gap: float) -> None:
+        img, top_gap: float, left_gap: float) -> None:
 
     size = int(width*font_size)
-    font = ImageFont.truetype(font_path, size)
+    font = ImageFont.truetype(FONT, size)
     axis = font.getsize(text)
 
     x = int(width*left_gap - (axis[0]//2))
     y = int(height*top_gap - (axis[1])//2)
 
     axis = (x, y)
-    img.text(axis, text, fill = color, font=font)
+    img.text(axis, text, fill = FG, font=font)
 
 def write_image(wallpaper: Image.Image, img: Image.Image,
         left_gap: float, top_gap:float) -> None:
@@ -100,42 +96,32 @@ def draw_border(gap: float, border: float,
             axis[2] + shadow_gap, axis[3] + shadow_gap)
     wallpaper.rectangle(axis, outline=color, width=int(width*border))
 
+### Settings ###
+
+FONT = './robotMono/RobotoMono-Regular.ttf'
+
+# Colors
+BG = '#222831' # (34, 40, 49, 255)
+FG = '#e4e4e4' # (228, 228, 228, 255)
+EXTRA = '#D65A31' # (214, 90, 49, 255)
+BLACK = '#000000'
+
+# Each intheshell_
+
+TITLE_1 = '[E]ach'
+TITLE_2 = 'InTheShell_'
+
+# Logo
+ICON = './assets/catbomb.png'
+LOGO_SIZE = 0.35
+
+# Border
+BORDER_GAP = 0.02
+BORDER_WIDTH = 0.01
+
+### Settings ###
 
 if __name__ == '__main__':
-
-    ### Settings ###
-
-    global font_path
-    font_path = '/usr/share/fonts/TTF/RobotoMono-Regular.ttf'
-
-    # Colors
-    bg = '#222831' # (34, 40, 49, 255)
-    fg = '#e4e4e4' # (228, 228, 228, 255)
-    extra = '#D65A31' # (214, 90, 49, 255)
-    black = '#000000'
-
-    # Each intheshell_
-    left_gap_title = 0.5
-    top_gap_title = 0.1
-    title_gap = 0.05
-    title_1 = '[E]ach'
-    title_2 = 'InTheShell_'
-
-    # Logo
-    left_gap_logo = 0.5
-    top_gap_logo = 0.5
-
-    # Username
-    left_gap_user = 0.5
-    top_gap_user = 0.85
-
-    # Border
-    border_gap = 0.02
-    border_width = 0.01
-
-    shadow_gap = 0.01
-
-    ### Settings ###
 
     global width, height
     args = parser.parse_args()
@@ -143,27 +129,26 @@ if __name__ == '__main__':
     user = args.username
 
     wallpaper = Image.new(mode = "RGBA",
-            size = (width, height), 
-            color = bg)
+            size = (width, height),
+            color = BG)
 
     img = ImageDraw.Draw(wallpaper)
-    write_text(text=title_1, font_size=0.1, color=fg,
-            img=img, top_gap=top_gap_title, left_gap=left_gap_title)
-    write_text(text=title_2, font_size=0.1, color=fg,
-            img=img, top_gap=top_gap_title + title_gap, left_gap=left_gap_title)
+    write_text(text=TITLE_1, font_size=0.1,
+            img=img, top_gap=0.1, left_gap=0.5)
+    write_text(text=TITLE_2, font_size=0.1,
+            img=img, top_gap=0.1+ 0.05, left_gap=0.5)
 
-    write_text(text=user, font_size=0.05, color=fg,
-            img=img, top_gap=top_gap_user, left_gap=left_gap_user)
+    write_text(text=user, font_size=0.05,
+            img=img, top_gap=0.85, left_gap=0.5)
 
+    catbomb = Image.open(ICON)
 
-    catbomb = Image.open('./assets/catbomb.png')
+    catbomb = resize_image(ratio=LOGO_SIZE, img=catbomb)
 
-    catbomb = resize_image(ratio=0.35, img=catbomb)
-
-    write_image(wallpaper=wallpaper, img=catbomb, left_gap=left_gap_logo, top_gap=top_gap_logo)
+    write_image(wallpaper=wallpaper, img=catbomb, left_gap=0.5, top_gap=0.5)
     wallpaper = write_shadow(wallpaper)
 
-    draw_border(gap=border_gap, border=border_width, wallpaper=img, color=black, shadow_gap=shadow_gap)
-    draw_border(gap=border_gap, border=border_width, wallpaper=img, color=fg)
+    draw_border(gap=BORDER_GAP, border=BORDER_WIDTH, wallpaper=img, color=BLACK, shadow_gap=0.01)
+    draw_border(gap=BORDER_GAP, border=BORDER_WIDTH, wallpaper=img, color=FG)
 
     wallpaper.save('./assets/wallpaper.png')
